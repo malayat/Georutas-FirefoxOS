@@ -1,0 +1,43 @@
+
+@font-face {
+    font-family: 'firafont';
+    src: url('FiraMonoOT-Bold.otf');
+}
+
+*{
+    margin:0;
+    padding:0;
+}
+
+#map{
+    display: block;
+    margin: 0;
+    padding: 0;
+    position: absolute; /* posición absoluta a navegador */
+    top: 50px;      /* 50px debajo de borde de navegador */
+    left: 0;        /* ajusta a borde de navegador */
+    right: 0;
+    bottom: 0;
+    background: rgba(0,255,0,0.5); /* verde si no hay mapa */
+}
+
+#cabecera{
+    padding:1rem;
+    margin:0;
+    background-color:#CD6723;
+}
+
+#title{
+    color:#ffffff;
+    font-family: "firafont";
+    font-size: 1.5rem
+
+}
+
+#reiniciar{
+    font-family: "firafont";
+    display: block;
+    margin: 0;
+    padding: 0;
+    float: right;
+}

@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <title>Ejercicio Obligatorio M10 - Alejandro Ayala</title>
+
+        <script type="text/javascript" src="js/zepto.min.js"></script>
+        <script type="text/javascript" src="http://maps.google.com/maps/api/js?sensor=true"></script>
+        <script type="text/javascript" src="js/gmaps.js"></script>
+        <script type="text/javascript" src="js/touch.js"></script>
+        <link rel="stylesheet" type="text/css" href="css/style.css" />
+        <script type="text/javascript">
+            var map, lat, lng;
+            var rutas = [];
+
+            localStorage.lsr = (localStorage.lsr || "");
+
+            $(function() {
+                //eventos on clic/tap sobre reiniciar
+                $("#reiniciar").on("click", reiniciar);
+                $("#reiniciar").on("tap", reiniciar);
+
+                function geolocalizar() {
+                    GMaps.geolocate({
+                        success: function(position) {
+                            rutas = [];
+                            //si localstorage tiene datos llama al metodo obtenerRutas
+                            //caso contrario carga el mapa con la lat y long de la posicion geolocalizada
+                            if (localStorage.lsr) {
+                                obtenerRutas();
+                            } else {
+                                obtenerMapa(position.coords.latitude, position.coords.longitude);
+                            }
+                        },
+                        error: function(error) {
+                            alert('Geolocalización falla: ' + error.message);
+                        },
+                        not_supported: function() {
+                            alert("Su navegador no soporta geolocalización");
+                        }
+                    });
+                }
+
+                //Instancia el mapa dada su latitud y longitud
+                //agrega la marca respectiva
+                function obtenerMapa(latitud, longitud) {
+                    lat = latitud;  // guarda coords en lat y lng
+                    lng = longitud;
+
+                    rutas.push([lat, lng]);
+
+                    map = new GMaps({// muestra mapa centrado en coords [lat, lng]
+                        el: '#map',
+                        lat: lat,
+                        lng: lng,
+                        click: enlazarMarcador,
+                        tap: enlazarMarcador
+                    });
+
+                    map.addMarker({lat: lat, lng: lng});
+                }
+
+                function enlazarMarcador(e) {
+                    // muestra ruta entre marcas anteriores y actuales
+                    map.drawRoute({
+                        origin: [lat, lng], // origen en coordenadas anteriores
+                        // destino en coordenadas del click o toque actual
+                        destination: [e.latLng.lat(), e.latLng.lng()],
+                        travelMode: 'driving',
+                        strokeColor: '#000000',
+                        strokeOpacity: 0.6,
+                        strokeWeight: 5
+                    });
+
+                    // guarda coords para marca siguiente                    
+                    lat = e.latLng.lat();
+                    lng = e.latLng.lng();
+
+                    map.addMarker({lat: lat, lng: lng});
+
+                    //guardar las coordenas en el array rutas
+                    //y serializar para guardar en localStorage
+                    rutas.push([lat, lng]);
+                    localStorage.lsr = JSON.stringify(rutas);
+                }
+
+                function obtenerRutas() {
+                    //obtiene el objeto al parsear lo que se encuentra guardado
+                    var arrayNuevo = JSON.parse(localStorage.lsr);
+                    //se instancia el mapa con la posicion inicial guardada
+                    obtenerMapa(arrayNuevo[0][0], arrayNuevo[0][1]);
+                    //se recorre el array para dibujar la ruta y la marca
+                    for (var i in arrayNuevo) {
+                        dibujarRutaMarca(arrayNuevo[i], arrayNuevo[+i + 1]);
+                    }
+                }
+
+                function dibujarRutaMarca(origen, destino) {
+                    //si destino es undefined se llego al final
+                    if (destino !== undefined) {
+                        //dibuja la ruta
+                        map.drawRoute({
+                            origin: origen,
+                            destination: destino,
+                            travelMode: 'driving',
+                            strokeColor: '#000000',
+                            strokeOpacity: 0.6,
+                            strokeWeight: 5
+                        });
+                        lat = destino[0];
+                        lng = destino[1];
+                        //se carga el array rutas perservar las coodenadas
+                        //para que no se pierdan al retomar el mapa
+                        rutas.push([lat, lng]);
+                        map.addMarker({lat: lat, lng: lng});
+
+                    }
+                }
+
+                function reiniciar() {
+                    //limpiamos el localstorage
+                    localStorage.lsr = "";
+                    geolocalizar();
+                }
+
+                geolocalizar();
+
+            });
+        </script>
+    </head>
+    <body>        
+        <div id="cabecera">
+            <h1 id="title">Geolocalización 
+                <span id="reiniciar">Reiniciar</span>
+            </h1>
+        </div>
+        <div id="map"></div>
+    </body>
+</html>

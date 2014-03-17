@@ -1,0 +1,23 @@
+{
+  "version": "0.1",
+  "name": "Geomap",
+  "description": "Geolocalizacion y Rutas",
+  "launch_path": "/geomap.htm",
+  "icons": {
+    "16":  "/ico_16.png",
+    "48":  "/ico_48.png",
+    "128": "/ico_128.png"
+  },
+  "developer": {
+    "name": "Alejandro Ayala",
+    "url": "http://alejandroayala.solmedia.ec"
+  },
+  "permissions": {
+    "geolocation": {
+	"description": "Necesario para mostrar su ubicación."
+     },
+     "storage": {
+	"description": "Almacena datos localmente."
+     }
+  }
+}
